@@ -55,9 +55,15 @@ class SimplerAdapter(BaseEnvAdapter):
         env,
         obs: dict,
         instruction: str,
+        image: np.array = None,
+        proprio: np.array = None,
     ) -> dict:
         """using sxyz convention for euler angles"""
-        image = get_image_from_maniskill2_obs_dict(env, obs)  # [H, W, 3]
+        if env is not None:
+            image = get_image_from_maniskill2_obs_dict(env, obs)  # [H, W, 3]
+        elif image is None:
+            image = image
+        
         image = cv2.resize(
             image,
             self.image_size,
@@ -71,7 +77,10 @@ class SimplerAdapter(BaseEnvAdapter):
         model_inputs = self.processor(text=[instruction], images=images)
 
         # process proprio depending on the robot
-        raw_proprio = self.preprocess_proprio(obs)
+        if proprio is not None:
+            raw_proprio = self.preprocess_proprio(proprio=proprio)
+        else:
+            raw_proprio = self.preprocess_proprio(obs=obs)
 
         # normalize proprios - gripper opening is normalized
         if self.proprio_normalization_type == "bound":
@@ -128,14 +137,14 @@ class SimplerAdapter(BaseEnvAdapter):
         # prepare for simpler env
         actions = np.zeros((len(raw_actions), 7))  # chunk
         for idx, raw_action in enumerate(raw_actions):
-            roll, pitch, yaw = raw_action[3:6]
-            action_rotation_ax, action_rotation_angle = euler2axangle(roll, pitch, yaw)
+            # roll, pitch, yaw = raw_action[3:6]
+            # action_rotation_ax, action_rotation_angle = euler2axangle(roll, pitch, yaw)
             action_gripper = self.postprocess_gripper(raw_action[-1])
 
             actions[idx] = np.concatenate(
                 [
                     raw_action[:3],
-                    action_rotation_ax * action_rotation_angle,
+                    raw_action[3:6], # RobotArena Needs Euler instead of axangle action_rotation_ax * action_rotation_angle,
                     [action_gripper],
                 ]
             )
@@ -164,9 +173,9 @@ class BridgeSimplerAdapter(SimplerAdapter):
     def reset(self):
         super().reset()
 
-    def preprocess_proprio(self, obs: dict) -> np.array:
+    def preprocess_proprio(self, obs: dict=None, proprio=None) -> np.array:
         # convert ee rotation to the frame of top-down
-        proprio = obs["agent"]["eef_pos"]
+        proprio = obs["agent"]["eef_pos"] if obs is not None else proprio
         rm_bridge = quat2mat(proprio[3:7])
         rpy_bridge_converted = mat2euler(rm_bridge @ self.default_rot.T)
         gripper_openness = proprio[7]

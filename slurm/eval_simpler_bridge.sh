@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=eval-bridge
-#SBATCH --output=logs/eval/%A.out
-#SBATCH --error=logs/eval/%A.err
+#SBATCH --job-name=openpi0-eval-bridge
+#SBATCH --output=%A.out
+#SBATCH --error=%A.err
 #SBATCH --time=5:59:59
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
@@ -36,5 +36,5 @@ for TASK in ${TASKS[@]}; do
         use_bf16=False \
         use_torch_compile=True \
         name=bridge_beta \
-        'checkpoint_path="...bridge_beta.pt"'
+        'checkpoint_path="bridge_beta_step19296_2024-12-26_22-30_42.pt"'
 done
