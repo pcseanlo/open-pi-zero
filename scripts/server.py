@@ -95,7 +95,7 @@ def _main(cfg: OmegaConf):
     def act(payload: Dict[str, Any]):
         try:
             actions = agent.get_actions(payload)
-            return JSONResponse(content={"actions": actions.tolist()})
+            return JSONResponse(content={"action": actions.tolist()})
         except Exception:
             logging.error(traceback.format_exc())
             return JSONResponse({"error": "Action computation failed"}, status_code=400)
