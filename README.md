@@ -20,6 +20,7 @@ git clone https://github.com/allenzren/SimplerEnv --recurse-submodules
 uv sync
 uv pip install -e ../SimplerEnv
 uv pip install -e ../SimplerEnv/ManiSkill2_real2sim
+uv pip install uvicorn fastapi json-numpy # packages for server hosting
 ```
 Or you may use venv or conda env instead of uv and run `pip install -e .` in all three directories.
 
@@ -116,6 +117,29 @@ All numbers are averaged over 10 trials on top of prepackaged variations (robot/
 Reason on evaluating with both bf16 and float32: While the model is trained with bf16, mixed precision, and no KV caching, during inference KV cache of VLM/Proprio is used. This leads to a distribution shift of the policy output when bf16 is used [(discussion)](https://github.com/huggingface/transformers/issues/25420#issuecomment-1775317535) compared to not using KV cache, estimated around 5e-4 to 2.5e-3 (out of the [-1, 1] normalization range) in avg L1 distance; difference is negligible when float32 is used in inference.
 
 Disclaimer: Please do not associate the results here with possible results from Pi.
+
+## Start Server
+
+After downloading corresponding checkpoints, you can start a policy server via:
+```
+# Quick Start
+bash slurm/eval_simpler_bridge_server.sh
+
+# Or run with
+CUDA_VISIBLE_DEVICES=0 HYDRA_FULL_ERROR=1 uv run \
+    scripts/server.py \
+    --config-name=bridge \
+    --config-path=../config/server \
+    device=cuda:0 \
+    horizon_steps=4 \
+    act_steps=4 \
+    use_bf16=False \
+    use_torch_compile=True \
+    name=bridge_beta \
+    'checkpoint_path="name_of_your_checkpoint.pt"'
+```
+
+> Current code only contains implementation for bridge, you can change via customizing or adding config files in `config/server` and changing corresponding args in the running commands
 
 ## Run training
 
