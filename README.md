@@ -29,10 +29,10 @@ Or you may use venv or conda env instead of uv and run `pip install -e .` in all
 source scripts/set_path.sh
 ```
 
-4. Download PaliGemma weights at `TRANSFORMERS_CACHE`:
+4. Download PaliGemma weights:
+* Here we recommend to download with `huggingface-cli`
 ```console
-cd $TRANSFORMERS_CACHE
-git clone https://huggingface.co/google/paligemma-3b-pt-224
+hf download google/paligemma-3b-pt-224
 ```
 
 ### Test text generation with pre-trained weights
