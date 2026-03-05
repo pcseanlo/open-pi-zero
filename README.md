@@ -11,12 +11,13 @@ If you find a bug or think I may have misunderstood part of the architecture bas
 ## Installation
 1. Clone this repository at your directory. If running Simpler eval or trying out trained checkpoints, clone my Simpler fork (added proprio support) to the same directory:
 ```console
-git clone https://github.com/allenzren/open-pi-zero
+git clone https://github.com/pcseanlo/open-pi-zero
 git clone https://github.com/allenzren/SimplerEnv --recurse-submodules
 ```
 
 2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and run the following in the repo directory:
 ```console
+cd open-pi-zero
 uv sync
 uv pip install -e ../SimplerEnv
 uv pip install -e ../SimplerEnv/ManiSkill2_real2sim
